@@ -1,6 +1,7 @@
 #import numpy as np
 
 from . import plot
+from . import plot_team
 from . import player
 from . import team 
 from . import league

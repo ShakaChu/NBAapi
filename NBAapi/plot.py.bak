@@ -1,8 +1,9 @@
+#%%
 from matplotlib.patches import Circle, Rectangle, Arc
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import misc
-import urllib.request, urllib.parse, urllib.error, io
+import urllib, cStringIO
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import LinearSegmentedColormap
@@ -185,7 +186,7 @@ def text_in_zone(string,zone,box_alpha = 0.75,**kwargs):
 
 def players_picture(player_id):
     URL = "http://stats.nba.com/media/players/230x185/%d.png" %player_id
-    file = io.BytesIO(urllib.request.urlopen(URL).read())
+    file = cStringIO.StringIO(urllib.urlopen(URL).read())
     return misc.imread(file)
 
 def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_range=[-9,9]):
@@ -220,7 +221,7 @@ def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_ran
     counts_norm[(counts>=1) & (counts<2)] = 0.3
     patches=[]
     colors=[]
-    for offc in range(verts.shape[0]):
+    for offc in xrange(verts.shape[0]):
         if counts_norm[offc] != 0:
             xc,yc = verts[offc][0],verts[offc][1] 
             b[:,0] = xy[:,0]*counts_norm[offc] + xc
@@ -268,9 +269,9 @@ def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_ran
     ax.add_collection(p)
     p.set_clim([0, len(bins)-1])
     
-    # pic = players_picture(shotchart.loc[0,'PLAYER_ID'])
-    # ax.imshow(pic,extent=[15,25,30,37.8261])
-    # ax.text(20,29,shotchart.loc[0,'PLAYER_NAME'],fontsize=16,horizontalalignment='center',verticalalignment='center')
+    pic = players_picture(shotchart.loc[0,'PLAYER_ID'])
+    ax.imshow(pic,extent=[15,25,30,37.8261])
+    ax.text(20,29,shotchart.loc[0,'PLAYER_NAME'],fontsize=16,horizontalalignment='center',verticalalignment='center')
     
 def shot_zone(X,Y):
     '''

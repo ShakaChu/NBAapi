@@ -183,27 +183,27 @@ def text_in_zone(string,zone,box_alpha = 0.75,**kwargs):
             t = plt.text(0,39,string,horizontalalignment='center',verticalalignment='center',**kwargs)
             t.set_bbox(dict(color='white', alpha=box_alpha))
 
-def players_picture(player_id):
-    URL = "http://stats.nba.com/media/players/230x185/%d.png" %player_id
-    file = io.BytesIO(urllib.request.urlopen(URL).read())
-    return misc.imread(file)
 
-def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_range=[-9,9]):
+# def players_picture(player_id):
+#     URL = "http://stats.nba.com/media/players/230x185/%d.png" %player_id
+#     file = io.StringIO(urllib.request.urlopen(URL).read())
+#     return misc.imread(file)
+
+def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_range=[-9,9],figsize=(12,10),img=None):
     LA = leagueavergae.loc[:,'SHOT_ZONE_AREA':'FGM'].groupby(['SHOT_ZONE_RANGE','SHOT_ZONE_AREA']).sum()
     LA['FGP'] = 1.0*LA['FGM']/LA['FGA']
-    player = shotchart.groupby(['SHOT_ZONE_RANGE','SHOT_ZONE_AREA','SHOT_MADE_FLAG']).size().unstack(fill_value=0)
-    player['FGP'] = 1.0*player.loc[:,1]/player.sum(axis=1)
-    player_vs_league = (player.loc[:,'FGP'] - LA.loc[:,'FGP'])*100
+    team = shotchart.groupby(['SHOT_ZONE_RANGE','SHOT_ZONE_AREA','SHOT_MADE_FLAG']).size().unstack(fill_value=0)
+    team['FGP'] = 1.0*team.loc[:,1]/team.sum(axis=1)
+    team_vs_league = (team.loc[:,'FGP'] - LA.loc[:,'FGP'])*100
     x,y = 1.0*shotchart.LOC_X.values/10, 1.0*shotchart.LOC_Y.values/10
     fig = plt.figure()
     poly_hexbins = plt.hexbin(x,y, gridsize=35, extent=[-25,25,-6.25,50-6.25])
     counts = poly_hexbins.get_array()
     verts = poly_hexbins.get_offsets()
     plt.close(fig)
-#    plt.figure(figsize=figsize,facecolor='white') #(0,0.17,0.57)
+    plt.figure(figsize=figsize,facecolor='white')  # (0,0.17,0.57)
     if ax is None:
         ax = plt.gca(xlim = [30,-30],ylim = [-10,40],xticks=[],yticks=[],aspect=1.0)
-    ax.text(0,-7,'By: Doingthedishes',color='black',horizontalalignment='center',fontsize=20,fontweight='bold')
     court(ax,outer_lines=False,color='black',lw=4.0,direction='down',short_three=short_three);
     ax.axis('off')
     #nba.plot.zones()
@@ -226,9 +226,9 @@ def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_ran
             b[:,0] = xy[:,0]*counts_norm[offc] + xc
             b[:,1] = xy[:,1]*counts_norm[offc] + yc
             if not short_three:
-                p_diff = player_vs_league.loc[shot_zone(xc,yc)]
+                p_diff = team_vs_league.loc[shot_zone(xc,yc)]
             else:
-                p_diff = player_vs_league.loc[shot_zone_short_three(xc,yc)]
+                p_diff = team_vs_league.loc[shot_zone_short_three(xc,yc)]
             inds = np.digitize(p_diff, bins,right=True)-1
             patches.append(Polygon(b))
             colors.append(inds)
@@ -262,15 +262,14 @@ def grantland_shotchart(shotchart,leagueavergae,ax=None,short_three=False,fg_ran
     
     patches.append(Polygon(b))
     colors.append(100)
-    
+
     p = PatchCollection(patches,cmap=cm,alpha=1)
     p.set_array(np.array(colors))
     ax.add_collection(p)
     p.set_clim([0, len(bins)-1])
     
-    # pic = players_picture(shotchart.loc[0,'PLAYER_ID'])
-    # ax.imshow(pic,extent=[15,25,30,37.8261])
-    # ax.text(20,29,shotchart.loc[0,'PLAYER_NAME'],fontsize=16,horizontalalignment='center',verticalalignment='center')
+    if img is not None:
+        ax.imshow(img,extent=[15,25,30,37.8261])
     
 def shot_zone(X,Y):
     '''
