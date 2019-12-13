@@ -1,6 +1,7 @@
 # %%
 import requests
 import pandas as pd
+from NBAapi.credentials import DEFAULT_HEADERS
 
 
 def shotchartdetail(league_id='00', season='2019-20', season_type='Regular Season', team_id=0,
@@ -14,7 +15,7 @@ def shotchartdetail(league_id='00', season='2019-20', season_type='Regular Seaso
     Example:
     shot_data,leagueaverage = shotchartdetail(season='2016-17')
     '''
-    url = 'https://stats.nba.com/stats/shotchartdetail?'
+    url = 'http://stats.nba.com/stats/shotchartdetail?'
     api_param = {
         'LeagueID': league_id,
         'Season': season,
@@ -40,15 +41,8 @@ def shotchartdetail(league_id='00', season='2019-20', season_type='Regular Seaso
         'ClutchTime': clutch_time,
         'RookieYear': rookie_year,
     }
-    u_a = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36"
-    response = requests.get(url, params=api_param, headers={
-        "USER-AGENT": u_a,
-        "Referer": "https://stats.nba.com/events/"
-    })
+    response = requests.get(url, params=api_param, headers=DEFAULT_HEADERS)
     data = response.json()
     shot_chart_detail = pd.DataFrame(data['resultSets'][0]['rowSet'], columns=data['resultSets'][0]['headers'])
     league_average = pd.DataFrame(data['resultSets'][1]['rowSet'], columns=data['resultSets'][1]['headers'])
     return shot_chart_detail, league_average
-
-westbrook_chart, avg = shotchartdetail(player_id=203507)
-print(westbrook_chart)
