@@ -3,11 +3,11 @@ import requests
 import pandas as pd
 
 
-def shotchartdetail(leagueid='00', season='2019-20', seasontype='Regular Season', teamid=0,
-                    playerid=0, gameid='', outcome='', location='', month=0,
-                    seasonseg='', datefrom='', dateto='', oppteamid=0, vsconf='',
-                    vsdiv='', pos='', gameseg='', per=0, lastngames=0, aheadbehind='',
-                    contextmeasure='FGA', clutchtime='', rookieyear=''):
+def shotchartdetail(league_id='00', season='2019-20', season_type='Regular Season', team_id=0,
+                    player_id=0, game_id='', outcome='', location='', month=0,
+                    season_seg='', date_from='', date_to='', opp_team_id=0, vs_conf='',
+                    vs_div='', pos='', game_seg='', per=0, last_n_games=0, ahead_behind='',
+                    context_measure='FGM', clutch_time='', rookie_year=''):
     '''
     Access to NBA API - http://stats.nba.com/stats/shotchartdetail
     Returns the shotchart requested and the leagueaverage
@@ -16,29 +16,29 @@ def shotchartdetail(leagueid='00', season='2019-20', seasontype='Regular Season'
     '''
     url = 'https://stats.nba.com/stats/shotchartdetail?'
     api_param = {
-        'LeagueID': leagueid,
+        'LeagueID': league_id,
         'Season': season,
-        'SeasonType': seasontype,
-        'TeamID': teamid,
-        'PlayerID': playerid,
-        'GameID': gameid,
+        'SeasonType': season_type,
+        'TeamID': team_id,
+        'PlayerID': player_id,
+        'GameID': game_id,
         'Outcome': outcome,
         'Location': location,
         'Month': month,
-        'SeasonSegment': seasonseg,
-        'DateFrom': datefrom,
-        'DateTo': dateto,
-        'OpponentTeamID': oppteamid,
-        'VsConference': vsconf,
-        'VsDivision': vsdiv,
+        'SeasonSegment': season_seg,
+        'DateFrom': date_from,
+        'DateTo': date_to,
+        'OpponentTeamID': opp_team_id,
+        'VsConference': vs_conf,
+        'VsDivision': vs_div,
         'PlayerPosition': pos,
-        'GameSegment': gameseg,
+        'GameSegment': game_seg,
         'Period': per,
-        'LastNGames': lastngames,
-        'AheadBehind': aheadbehind,
-        'ContextMeasure': contextmeasure,
-        'ClutchTime': clutchtime,
-        'RookieYear': rookieyear,
+        'LastNGames': last_n_games,
+        'AheadBehind': ahead_behind,
+        'ContextMeasure': context_measure,
+        'ClutchTime': clutch_time,
+        'RookieYear': rookie_year,
     }
     u_a = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36"
     response = requests.get(url, params=api_param, headers={
@@ -49,3 +49,6 @@ def shotchartdetail(leagueid='00', season='2019-20', seasontype='Regular Season'
     shot_chart_detail = pd.DataFrame(data['resultSets'][0]['rowSet'], columns=data['resultSets'][0]['headers'])
     league_average = pd.DataFrame(data['resultSets'][1]['rowSet'], columns=data['resultSets'][1]['headers'])
     return shot_chart_detail, league_average
+
+westbrook_chart, avg = shotchartdetail(player_id=203507)
+print(westbrook_chart)
